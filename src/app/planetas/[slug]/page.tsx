@@ -52,7 +52,7 @@ export default function PlanetPage() {
   const [estrelas, setEstrelas] = useState(5)
   const [feedbacks, setFeedbacks] = useState([
     { id: 1, nome: "Comandante Silva", estrelas: 5, comentario: "Dados de telemetria perfeitamente alinhados. Excelente mapeamento de texturas." },
-    { id: 2, nome: "Recruta Adriano", estrelas: 4, comentario: "A análise comparativa com a Terra ajudou imenso a perceber a escala deste world!" }
+    { id: 2, nome: "Recruta Adriano", estrelas: 4, comentario: "A análise comparativa com a Terra ajudou imenso a perceber a escala deste mundo!" }
   ])
 
   if (!planeta) {
@@ -94,7 +94,6 @@ export default function PlanetPage() {
       position: 'relative',
     }}>
       
-      {/* 🛠️ CORREÇÃO CRÍTICA AQUI: Removido o #sistema-solar para não quebrar o F5 futuro */}
       <Link href="/?skipIntro=true" style={{
         position: 'fixed',
         top: '2rem',
@@ -126,7 +125,7 @@ export default function PlanetPage() {
         e.currentTarget.style.boxShadow = 'none'
       }}
       >
-        ← SAIR DA ÓRBITA
+        <i className="bi bi-arrow-left" /> SAIR DA ÓRBITA
       </Link>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', minHeight: '100vh' }}>
@@ -256,6 +255,7 @@ export default function PlanetPage() {
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: '0.9rem', fontWeight: 500, letterSpacing: '0.05em' }}>
+                      <i className="bi bi-file-earmark-text" style={{ marginRight: '8px', color: planeta.color }} />
                       MISTÉRIO #0{index + 1}
                     </span>
                     <span style={{ color: planeta.color, transform: `rotate(${estaAberto ? '180deg' : '0deg'})`, transition: 'transform 0.3s' }}>
@@ -317,7 +317,8 @@ export default function PlanetPage() {
                       onClick={() => setEstrelas(num)}
                       style={{ cursor: 'pointer', fontSize: '1.5rem', color: num <= estrelas ? '#ffaa00' : 'rgba(255,255,255,0.15)', transition: 'color 0.2s' }}
                     >
-                      ★
+                      {/* LÓGICA DE ÍCONES ATUALIZADA AQUI */}
+                      <i className={num <= estrelas ? "bi bi-star-fill" : "bi bi-star"} />
                     </span>
                   ))}
                 </div>
@@ -337,11 +338,11 @@ export default function PlanetPage() {
 
               <button 
                 type="submit"
-                style={{ background: planeta.color, color: '#000', border: 'none', padding: '1rem', borderRadius: '4px', fontWeight: 700, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.1em', transition: 'opacity 0.2s' }}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: planeta.color, color: '#000', border: 'none', padding: '1rem', borderRadius: '4px', fontWeight: 700, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.1em', transition: 'opacity 0.2s' }}
                 onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
                 onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
               >
-                Enviar Transmissão
+                <i className="bi bi-rocket-takeoff-fill" style={{ fontSize: '1.2rem' }} /> Enviar Transmissão
               </button>
             </form>
           </div>
@@ -353,7 +354,14 @@ export default function PlanetPage() {
                 <div key={item.id} style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.03)', padding: '1.2rem', borderRadius: '6px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                     <strong style={{ fontSize: '0.95rem', color: '#e2e8f0' }}>{item.nome}</strong>
-                    <span style={{ color: '#ffaa00', fontSize: '0.85rem' }}>{'★'.repeat(item.estrelas)}</span>
+                    
+                    {/* VISUALIZAÇÃO DE ÍCONES ATUALIZADA AQUI */}
+                    <span style={{ color: '#ffaa00', fontSize: '0.95rem', display: 'flex', gap: '2px' }}>
+                      {Array.from({ length: 5 }).map((_, index) => (
+                        <i key={index} className={index < item.estrelas ? "bi bi-star-fill" : "bi bi-star"} />
+                      ))}
+                    </span>
+
                   </div>
                   <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: 0, lineHeight: 1.5 }}>{item.comentario}</p>
                 </div>
