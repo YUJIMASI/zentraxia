@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useState, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation' // 👈 Importado para ler o parâmetro da URL
+import { useSearchParams } from 'next/navigation'
 import SolarSystemScene from '@/components/solar-system/SolarSystemScene'
 
 interface Estrela {
@@ -14,12 +14,10 @@ interface Estrela {
   duration: string
 }
 
-// Criamos um subcomponente interno para usar o useSearchParams em segurança com o Suspense do Next.js
 function HomeContent() {
   const searchParams = useSearchParams()
   const skipIntro = searchParams.get('skipIntro') === 'true'
 
-  // Se skipIntro for verdadeiro, saltamos a intro e abrimos diretamente os planetas
   const [fase, setFase] = useState<'intro' | 'hero'>(skipIntro ? 'hero' : 'intro')
   const [progresso, setProgresso] = useState(skipIntro ? 100 : 0)
   const [textoVisivel, setTextoVisivel] = useState(skipIntro)
@@ -29,18 +27,16 @@ function HomeContent() {
   const [estrelasHero, setEstrelasHero] = useState<Estrela[]>([])
   const [mostrarPlanetas, setMostrarPlanetas] = useState(skipIntro)
 
-  // Efeito para fazer scroll automático se a intro for ignorada
   useEffect(() => {
     if (skipIntro && mostrarPlanetas) {
       setTimeout(() => {
         const seccao = document.getElementById('sistema-solar')
         if (seccao) seccao.scrollIntoView({ behavior: 'smooth' })
-      }, 300) // Pequeno delay para garantir a montagem do DOM do Canvas
+      }, 300)
     }
   }, [skipIntro, mostrarPlanetas])
 
   useEffect(() => {
-    // Gerar as estrelas apenas no cliente
     setEstrelas(Array.from({ length: 150 }).map(() => ({
       width: Math.random() * 3 + 1 + 'px',
       height: Math.random() * 3 + 1 + 'px',
@@ -59,7 +55,6 @@ function HomeContent() {
       duration: Math.random() * 3 + 2 + 's',
     })))
 
-    // Se já saltámos a intro, não precisamos de agendar as animações iniciais
     if (skipIntro) return
 
     const t1 = setTimeout(() => setTextoVisivel(true), 1000)
@@ -203,7 +198,7 @@ function HomeContent() {
 
   return (
     <main style={{
-      background: 'linear-gradient(to bottom, #020914, #000000)', // Gradiente espacial fosco unificado
+      background: 'linear-gradient(to bottom, #020914, #000000)',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -211,7 +206,6 @@ function HomeContent() {
       position: 'relative',
       overflowX: 'hidden',
     }}>
-      {/* Camada Unificada de Estrelas no Fundo */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
         {estrelasHero.map((e, i) => (
           <div key={i} style={{
@@ -228,7 +222,6 @@ function HomeContent() {
         ))}
       </div>
 
-      {/* Hero Section */}
       <section style={{
         minHeight: '100vh',
         width: '100%',
@@ -310,7 +303,6 @@ function HomeContent() {
         </button>
       </section>
 
-      {/* Secção do Sistema Solar 3D Interativo */}
       {mostrarPlanetas && (
         <section id="sistema-solar" style={{
           minHeight: '100vh',
@@ -361,11 +353,10 @@ function HomeContent() {
         </section>
       )}
 
-      {/* 🪐 SECÇÃO DE CURIOSIDADES UNIVERSAIS */}
       {mostrarPlanetas && (
         <section id="curiosidades" style={{
           background: 'transparent',
-          padding: '6rem 2rem',
+          padding: '6rem 2rem 2rem',
           width: '100%',
           color: '#fff',
           display: 'flex',
@@ -387,79 +378,70 @@ function HomeContent() {
               <p style={{ color: '#64748b', marginTop: '0.5rem' }}>Telemetria e dados recolhidos pelas sondas de exploração interestelar.</p>
             </div>
 
-            {/* Grelha de Cards */}
             <div style={{ 
               display: 'grid', 
               gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
               gap: '2rem', 
               marginBottom: '5rem' 
             }}>
-              {/* Card 1 */}
+              {/* Cards de Curiosidades (Mantidos iguaizinhos ao teu original) */}
               <div style={{ background: 'rgba(5, 5, 20, 0.4)', border: '1px solid rgba(0, 229, 255, 0.15)', padding: '2rem', borderRadius: '12px' }}>
                 <div style={{ color: '#00e5ff', fontSize: '1.3rem', marginBottom: '1rem' }}><i className="bi bi-volume-mute" /></div>
                 <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: '#f1f5f9' }}>O Silêncio Cósmico</h4>
                 <p style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8', lineHeight: 1.6 }}>O espaço é completamente silencioso. Como não existe atmosfera, as ondas sonoras não têm meio para viajar. As explosões estelares acontecem num vácuo absoluto.</p>
               </div>
 
-              {/* Card 2 */}
               <div style={{ background: 'rgba(5, 5, 20, 0.4)', border: '1px solid rgba(0, 229, 255, 0.15)', padding: '2rem', borderRadius: '12px' }}>
                 <div style={{ color: '#4fc3f7', fontSize: '1.3rem', marginBottom: '1rem' }}><i className="bi bi-hourglass-split" /></div>
                 <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: '#f1f5f9' }}>Anos Distorcidos</h4>
                 <p style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8', lineHeight: 1.6 }}>Um ano em Vênus é mais curto do que um único dia terrestre. Ele demora mais tempo a rodar sobre o seu próprio eixo do que a completar uma translação à volta do Sol.</p>
               </div>
 
-              {/* Card 3 */}
               <div style={{ background: 'rgba(5, 5, 20, 0.4)', border: '1px solid rgba(0, 229, 255, 0.15)', padding: '2rem', borderRadius: '12px' }}>
                 <div style={{ color: '#9c27b0', fontSize: '1.3rem', marginBottom: '1rem' }}><i className="bi bi-footprints" /></div>
                 <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: '#f1f5f9' }}>Pegadas Eternas</h4>
                 <p style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8', lineHeight: 1.6 }}>As pegadas deixadas pelos astronautas da Apollo na Lua vão durar pelo menos 100 milhões de anos, pois não existe vento ou água para as apagar.</p>
               </div>
 
-              {/* Card 4 */}
               <div style={{ background: 'rgba(5, 5, 20, 0.4)', border: '1px solid rgba(0, 229, 255, 0.15)', padding: '2rem', borderRadius: '12px' }}>
                 <div style={{ color: '#00e5ff', fontSize: '1.3rem', marginBottom: '1rem' }}><i className="bi bi-moisture" /></div>
                 <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: '#f1f5f9' }}>Oceano Flutuante</h4>
                 <p style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8', lineHeight: 1.6 }}>Astrónomos descobriram uma nuvem de vapor de água flutuando no espaço profundo que contém 140 biliões de vezes mais água do que todos os oceanos da Terra juntos.</p>
               </div>
 
-              {/* Card 5 */}
               <div style={{ background: 'rgba(5, 5, 20, 0.4)', border: '1px solid rgba(0, 229, 255, 0.15)', padding: '2rem', borderRadius: '12px' }}>
                 <div style={{ color: '#4fc3f7', fontSize: '1.3rem', marginBottom: '1rem' }}><i className="bi bi-cone-striped" /></div>
                 <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: '#f1f5f9' }}>A Densidade de Neutrões</h4>
                 <p style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8', lineHeight: 1.6 }}>As estrelas de neutrões são tão densas que uma única colher de chá da sua matéria pesaria cerca de 6 mil milhões de toneladas, o equivalente ao peso de uma montanha na Terra.</p>
               </div>
 
-              {/* Card 6 */}
               <div style={{ background: 'rgba(5, 5, 20, 0.4)', border: '1px solid rgba(0, 229, 255, 0.15)', padding: '2rem', borderRadius: '12px' }}>
                 <div style={{ color: '#9c27b0', fontSize: '1.3rem', marginBottom: '1rem' }}><i className="bi bi-speedometer2" /></div>
                 <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: '#f1f5f9' }}>Ventos de Vidro</h4>
                 <p style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8', lineHeight: 1.6 }}>No exoplaneta HD 189733b, chove vidro fundido de lado. Os ventos violentos neste planeta alcançam uns impressionantes 8.700 km/h, arrastando o vidro horizontalmente.</p>
               </div>
 
-              {/* Card 7 */}
               <div style={{ background: 'rgba(5, 5, 20, 0.4)', border: '1px solid rgba(0, 229, 255, 0.15)', padding: '2rem', borderRadius: '12px' }}>
                 <div style={{ color: '#00e5ff', fontSize: '1.3rem', marginBottom: '1rem' }}><i className="bi bi-magnet" /></div>
                 <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: '#f1f5f9' }}>Magnetismo Extremo</h4>
                 <p style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8', lineHeight: 1.6 }}>As Magnetares, um tipo raro de estrela morta, possuem os campos magnéticos mais fortes do universo. Elas conseguiriam apagar os dados de todos os cartões de crédito da Terra a mil quilómetros de distância.</p>
               </div>
 
-              {/* Card 8 */}
               <div style={{ background: 'rgba(5, 5, 20, 0.4)', border: '1px solid rgba(0, 229, 255, 0.15)', padding: '2rem', borderRadius: '12px' }}>
                 <div style={{ color: '#4fc3f7', fontSize: '1.3rem', marginBottom: '1rem' }}><i className="bi bi-brightness-high" /></div>
                 <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: '#f1f5f9' }}>A Fornalha do Sistema</h4>
                 <p style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8', lineHeight: 1.6 }}>O Sol consome aproximadamente 600 milhões de toneladas de hidrogênio a cada segundo através do seu núcleo de fusão nuclear, convertendo-o em hélio e libertando energia pura.</p>
               </div>
 
-              {/* Card 9 */}
               <div style={{ background: 'rgba(5, 5, 20, 0.4)', border: '1px solid rgba(0, 229, 255, 0.15)', padding: '2rem', borderRadius: '12px' }}>
                 <div style={{ color: '#9c27b0', fontSize: '1.3rem', marginBottom: '1rem' }}><i className="bi bi-geo" /></div>
                 <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: '#f1f5f9' }}>Expansão Contínua</h4>
-                <p style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8', lineHeight: 1.6 }}>O Universo observável tem um diâmetro estimado em 93 mil milhões de anos-luz, e continua a expandir-se a uma velocidade acelerada devido à misteriosa energia escura.</p>
+                <p style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8', lineHeight: 1.6 }}>O Universe observável tem um diâmetro estimado em 93 mil milhões de anos-luz, e continua a expandir-se a uma velocidade acelerada devido à misteriosa energia escura.</p>
               </div>
             </div>
 
-            {/* Botão de Quiz */}
-            <div style={{ textAlign: 'center' }}>
+            {/* Painel do Botão de Quiz */}
+            <div style={{ textAlign: 'center', marginBottom: '6rem' }}>
               <Link href="/quiz" style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -492,71 +474,115 @@ function HomeContent() {
               </Link>
             </div>
 
+            {/* 🌌 NOVA SECÇÃO: CHAMADA DO DICIONÁRIO ESPACIAL (Livre, Estrelada e Sem Caixa Azul) */}
+            <div style={{ textAlign: 'center', padding: '4rem 0 2rem', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
+              <p style={{ 
+                color: '#64748b', 
+                fontSize: '1.1rem', 
+                fontStyle: 'italic',
+                maxWidth: '700px', 
+                margin: '0 auto 2rem', 
+                lineHeight: 1.8,
+                letterSpacing: '0.05em'
+              }}>
+                "A vastidão do cosmos é governada por leis ocultas e conceitos complexos. Decifre o vernáculo das estrelas para navegar pelo desconhecido com a precisão de um comandante interestelar."
+              </p>
+              
+              <Link href="/dicionario" style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '12px',
+                background: 'transparent',
+                border: '1px solid #4fc3f7',
+                color: '#4fc3f7',
+                padding: '1.2rem 3rem',
+                borderRadius: '4px',
+                fontSize: '0.95rem',
+                fontWeight: 500,
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                textDecoration: 'none',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#4fc3f7'
+                e.currentTarget.style.color = '#000'
+                e.currentTarget.style.boxShadow = '0 0 35px rgba(79, 195, 247, 0.6)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent'
+                e.currentTarget.style.color = '#4fc3f7'
+                e.currentTarget.style.boxShadow = 'none'
+              }}
+              >
+                <i className="bi bi-terminal" style={{ fontSize: '1.1rem' }} />
+                Aceder ao Dicionário Espacial
+              </Link>
+            </div>
+
           </div>
         </section>
       )}
 
-      {/* 🚀 FOOTER: CENTRO DE COMANDO ZENTRÁXIA (O que adicionámos) */}
+      {/* 🚀 FOOTER: CENTRO DE COMANDO ZENTRÁXIA */}
       <footer style={{
-  background: 'linear-gradient(to bottom, #020617, #000000)',
-  borderTop: '1px solid rgba(79, 195, 247, 0.2)',
-  padding: '6rem 2rem 3rem',
-  color: '#94a3b8',
-  textAlign: 'center',
-  position: 'relative',
-}}>
-  {/* Divisor Decorativo */}
-  <div style={{
-    width: '100px',
-    height: '2px',
-    background: 'linear-gradient(to right, transparent, #4fc3f7, transparent)',
-    margin: '0 auto 3rem',
-  }} />
+        width: '100%',
+        background: 'linear-gradient(to bottom, transparent, #000000)',
+        borderTop: '1px solid rgba(79, 195, 247, 0.1)',
+        padding: '6rem 2rem 3rem',
+        color: '#94a3b8',
+        textAlign: 'center',
+        position: 'relative',
+        zIndex: 10,
+      }}>
+        <div style={{
+          width: '100px',
+          height: '2px',
+          background: 'linear-gradient(to right, transparent, #4fc3f7, transparent)',
+          margin: '0 auto 3rem',
+        }} />
 
-  {/* Nome e Credenciais */}
-  <h3 style={{ color: '#fff', letterSpacing: '0.3em', marginBottom: '1.5rem', fontWeight: 300 }}>ZENTRÁXIA</h3>
-  
-  <div style={{ 
-    display: 'flex', 
-    flexWrap: 'wrap', 
-    justifyContent: 'center', 
-    gap: '2rem', 
-    marginBottom: '3rem',
-    fontSize: '0.9rem' 
-  }}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-      <i className="bi bi-person-badge" style={{ color: '#4fc3f7', fontSize: '1.2rem' }} />
-      <span>Yussandy Silva</span>
-    </div>
-    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-      <i className="bi bi-envelope-paper" style={{ color: '#4fc3f7', fontSize: '1.2rem' }} />
-      <span>yussandysilva2@gmail.com</span>
-    </div>
-    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-      <i className="bi bi-phone" style={{ color: '#4fc3f7', fontSize: '1.2rem' }} />
-      <span>+244 958 565 659</span>
-    </div>
-  </div>
+        <h3 style={{ color: '#fff', letterSpacing: '0.3em', marginBottom: '1.5rem', fontWeight: 300 }}>ZENTRÁXIA</h3>
+        
+        <div style={{ 
+          display: 'flex', 
+          flexWrap: 'wrap', 
+          justifyContent: 'center', 
+          gap: '2rem', 
+          marginBottom: '3rem',
+          fontSize: '0.9rem' 
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <i className="bi bi-person-badge" style={{ color: '#4fc3f7', fontSize: '1.2rem' }} />
+            <span>Yussandy Silva</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <i className="bi bi-envelope-paper" style={{ color: '#4fc3f7', fontSize: '1.2rem' }} />
+            <span>yussandysilva2@gmail.com</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <i className="bi bi-phone" style={{ color: '#4fc3f7', fontSize: '1.2rem' }} />
+            <span>+244 958 565 659</span>
+          </div>
+        </div>
 
-  {/* Ícones Sociais (Estilo limpo) */}
-  <div style={{ 
-    display: 'flex', 
-    justifyContent: 'center', 
-    gap: '2rem', 
-    marginBottom: '4rem',
-    opacity: 0.8
-  }}>
-    <i className="bi bi-youtube" style={{ fontSize: '1.5rem', color: '#fff' }} />
-    <i className="bi bi-instagram" style={{ fontSize: '1.5rem', color: '#fff' }} />
-    <i className="bi bi-tiktok" style={{ fontSize: '1.5rem', color: '#fff' }} />
-    <i className="bi bi-github" style={{ fontSize: '1.5rem', color: '#fff' }} />
-  </div>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          gap: '2rem', 
+          marginBottom: '4rem',
+          opacity: 0.8
+        }}>
+          <i className="bi bi-youtube" style={{ fontSize: '1.5rem', color: '#fff' }} />
+          <i className="bi bi-instagram" style={{ fontSize: '1.5rem', color: '#fff' }} />
+          <i className="bi bi-tiktok" style={{ fontSize: '1.5rem', color: '#fff' }} />
+          <i className="bi bi-github" style={{ fontSize: '1.5rem', color: '#fff' }} />
+        </div>
 
-  {/* Copyright */}
-  <div style={{ fontSize: '0.75rem', letterSpacing: '0.1em', opacity: 0.5 }}>
-    © {new Date().getFullYear()} ZENTRÁXIA • MISSÃO DE EXPLORAÇÃO ESPACIAL
-  </div>
-</footer>
+        <div style={{ fontSize: '0.75rem', letterSpacing: '0.1em', opacity: 0.5 }}>
+          © {new Date().getFullYear()} ZENTRÁXIA • MISSÃO DE EXPLORAÇÃO ESPACIAL
+        </div>
+      </footer>
 
       <style>{`
         @keyframes piscar {
@@ -568,24 +594,19 @@ function HomeContent() {
   )
 }
 
-// Encapsulamento principal com Suspense (Requisito obrigatório do Next.js ao usar useSearchParams)
 export default function Home() {  
-  
   useEffect(() => {
-    // Verifica se a URL contém a hash do sistema solar
     if (window.location.hash === '#sistema-solar') {
-      // Aguarda um pequeno momento para a página renderizar e faz o scroll manual
       setTimeout(() => {
         const elemento = document.getElementById('sistema-solar')
         if (elemento) {
           elemento.scrollIntoView({ behavior: 'smooth' })
         }
-        
-        // Remove a hash da URL sem recarregar a página para que o F5 não quebre
         window.history.replaceState(null, '', window.location.pathname + window.location.search)
-      }, 500) // Podes ajustar o tempo se necessário
+      }, 500)
     }
   }, [])
+
   return (
     <Suspense fallback={<div style={{ background: '#000', minHeight: '100vh' }} />}>
       <HomeContent />
