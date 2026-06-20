@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
+// IMPORTA O SUPABASE AQUI (ajusta o caminho para a pasta onde criaste o ficheiro)
+import { supabase } from '@/lib/supabase'
 
 interface Estrela {
   width: string
@@ -13,14 +15,27 @@ interface Estrela {
   duration: string
 }
 
+// Criar interface para os dados que vêm do Supabase
+interface DadosDicionario {
+  termo: string
+  significado: string
+  exemplos: string[]
+  sinonimos: string[]
+  categoria: string
+}
+
 export default function DetalheTermo() {
   const params = useParams()
   const [estrelas, setEstrelas] = useState<Estrela[]>([])
   
+  // Novos estados para gerir a Base de Dados
+  const [dadosTermo, setDadosTermo] = useState<DadosDicionario | null>(null)
+  const [loading, setLoading] = useState(true)
+  
   // Capturar o termo de forma segura
   const termoRaw = params?.termo as string || ''
 
-  // Extrair e formatar o termo do URL (ex: "buraco-negro" -> "Buraco Negro")
+  // Extrair e formatar o termo do URL
   const termoFormatado = termoRaw
     ? decodeURIComponent(termoRaw)
         .split('-')
@@ -28,20 +43,10 @@ export default function DetalheTermo() {
         .join(' ')
     : 'A processar...'
 
-  // URL para a Wikipédia (substituindo espaços por underscores, padrão da Wiki)
+  // URL para a Wikipédia
   const linkWikipedia = `https://pt.wikipedia.org/wiki/${termoFormatado.replace(/\s+/g, '_')}`
 
-  // Textos temporários para simular uma base de dados
-  const significadoMock = `No contexto da astrofísica e da exploração espacial, ${termoFormatado.toLowerCase()} é um conceito fundamental que descreve fenómenos e propriedades específicas do cosmos. Esta é uma definição provisória enquanto os sistemas da Zentráxia sincronizam com a base de dados principal.`
-  
-  const exemplosMock = [
-    `"A observação detalhada da ${termoFormatado.toLowerCase()} permitiu aos investigadores mapear novos setores da galáxia."`,
-    `"Durante a aproximação final, os sensores da nave detetaram níveis anómalos relacionados com a ${termoFormatado.toLowerCase()}."`
-  ]
-
-  const sinonimosMock = ['(A aguardar dados)', '(Variante cósmica)']
-
-  // Gerar o fundo estrelado
+  // Gerar o fundo estrelado (Mantido igual)
   useEffect(() => {
     setEstrelas(Array.from({ length: 150 }).map(() => ({
       width: Math.random() * 2 + 1 + 'px',
@@ -52,6 +57,35 @@ export default function DetalheTermo() {
       duration: Math.random() * 3 + 2 + 's',
     })))
   }, [])
+
+  // Efeito para ir buscar os dados ao Supabase
+  useEffect(() => {
+    async function buscarDadosSupabase() {
+      if (termoFormatado === 'A processar...') return;
+
+      setLoading(true)
+      
+      const { data, error } = await supabase
+        .from('dicionario')
+        .select('*')
+        .ilike('termo', termoFormatado) // Procura ignorando maiúsculas/minúsculas
+        .single() // Como os termos são únicos, pedimos apenas 1 resultado
+
+      if (error || !data) {
+        console.error("Termo não encontrado ou erro:", error)
+        setDadosTermo(null)
+      } else {
+        setDadosTermo(data)
+      }
+      
+      setLoading(false)
+    }
+
+    buscarDadosSupabase()
+  }, [termoFormatado])
+
+  // Textos de fallback (caso a palavra não exista na BD)
+  const significadoFallback = `No contexto da astrofísica e da exploração espacial, ${termoFormatado.toLowerCase()} é um conceito fundamental. Esta é uma definição provisória enquanto os sistemas da Zentráxia sincronizam com a base de dados principal.`
 
   return (
     <main style={{
@@ -113,7 +147,7 @@ export default function DetalheTermo() {
       <div style={{ 
         position: 'relative', 
         zIndex: 10, 
-        maxWidth: '900px', // Aumentado de 800px para 900px
+        maxWidth: '900px',
         margin: '0 auto', 
         padding: '2rem 2rem 6rem',
         flex: 1,
@@ -125,7 +159,7 @@ export default function DetalheTermo() {
         <div style={{
           background: 'rgba(5, 5, 20, 0.6)',
           borderLeft: '4px solid #4fc3f7',
-          padding: '3rem 4rem', // Aumentado o padding interno
+          padding: '3rem 4rem',
           backdropFilter: 'blur(10px)',
           boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
         }}>
@@ -143,52 +177,66 @@ export default function DetalheTermo() {
             textShadow: '0 0 20px rgba(79,195,247,0.3)',
             color: '#e2e8f0'
           }}>
-            {termoFormatado}
+            {dadosTermo?.termo || termoFormatado}
           </h1>
           
           <div style={{ height: '1px', background: 'linear-gradient(90deg, rgba(79,195,247,0.5) 0%, transparent 100%)', marginBottom: '3rem' }} />
 
-          {/* Significado */}
-          <div style={{ marginBottom: '2.5rem' }}>
-            <h3 style={{ color: '#e2e8f0', fontSize: '1.2rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <i className="bi bi-info-circle" style={{ color: '#4fc3f7' }}/> Significado
-            </h3>
-            <p style={{ color: '#94a3b8', fontSize: '1.1rem', lineHeight: 1.8 }}>
-              {significadoMock}
+          {loading ? (
+            <p style={{ color: '#4fc3f7', fontSize: '1.2rem', textAlign: 'center', padding: '2rem 0' }}>
+              <i className="bi bi-arrow-repeat" style={{ display: 'inline-block', animation: 'spin 2s linear infinite', marginRight: '10px' }}/>
+              A sincronizar com a base de dados Zentráxia...
             </p>
-          </div>
+          ) : (
+            <>
+              {/* Significado */}
+              <div style={{ marginBottom: '2.5rem' }}>
+                <h3 style={{ color: '#e2e8f0', fontSize: '1.2rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <i className="bi bi-info-circle" style={{ color: '#4fc3f7' }}/> Significado
+                </h3>
+                <p style={{ color: '#94a3b8', fontSize: '1.1rem', lineHeight: 1.8 }}>
+                  {dadosTermo ? dadosTermo.significado : significadoFallback}
+                </p>
+              </div>
 
-          {/* Exemplos */}
-          <div style={{ marginBottom: '2.5rem' }}>
-            <h3 style={{ color: '#e2e8f0', fontSize: '1.2rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <i className="bi bi-chat-quote" style={{ color: '#4fc3f7' }}/> Exemplos de Utilização
-            </h3>
-            <ul style={{ color: '#94a3b8', fontSize: '1.1rem', lineHeight: 1.8, paddingLeft: '1.5rem', margin: 0, listStyleType: 'disc' }}>
-              <li style={{ marginBottom: '0.8rem', fontStyle: 'italic' }}>{exemplosMock[0]}</li>
-              <li style={{ fontStyle: 'italic' }}>{exemplosMock[1]}</li>
-            </ul>
-          </div>
+              {/* Exemplos (Só mostra se houverem exemplos na BD) */}
+              {dadosTermo?.exemplos && dadosTermo.exemplos.length > 0 && (
+                <div style={{ marginBottom: '2.5rem' }}>
+                  <h3 style={{ color: '#e2e8f0', fontSize: '1.2rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <i className="bi bi-chat-quote" style={{ color: '#4fc3f7' }}/> Exemplos de Utilização
+                  </h3>
+                  <ul style={{ color: '#94a3b8', fontSize: '1.1rem', lineHeight: 1.8, paddingLeft: '1.5rem', margin: 0, listStyleType: 'disc' }}>
+                    {dadosTermo.exemplos.map((exemplo, index) => (
+                      <li key={index} style={{ marginBottom: '0.8rem', fontStyle: 'italic' }}>"{exemplo}"</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
-          {/* Sinónimos */}
-          <div style={{ marginBottom: '3rem' }}>
-            <h3 style={{ color: '#e2e8f0', fontSize: '1.2rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <i className="bi bi-link-45deg" style={{ color: '#4fc3f7' }}/> Sinónimos Simples
-            </h3>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              {sinonimosMock.map((sinonimo, index) => (
-                <span key={index} style={{
-                  background: 'rgba(79, 195, 247, 0.1)',
-                  color: '#4fc3f7',
-                  padding: '0.4rem 1rem',
-                  borderRadius: '20px',
-                  fontSize: '0.9rem',
-                  border: '1px solid rgba(79, 195, 247, 0.2)'
-                }}>
-                  {sinonimo}
-                </span>
-              ))}
-            </div>
-          </div>
+              {/* Sinónimos (Só mostra se houverem sinónimos na BD) */}
+              {dadosTermo?.sinonimos && dadosTermo.sinonimos.length > 0 && (
+                <div style={{ marginBottom: '3rem' }}>
+                  <h3 style={{ color: '#e2e8f0', fontSize: '1.2rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <i className="bi bi-link-45deg" style={{ color: '#4fc3f7' }}/> Sinónimos Simples
+                  </h3>
+                  <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                    {dadosTermo.sinonimos.map((sinonimo, index) => (
+                      <span key={index} style={{
+                        background: 'rgba(79, 195, 247, 0.1)',
+                        color: '#4fc3f7',
+                        padding: '0.4rem 1rem',
+                        borderRadius: '20px',
+                        fontSize: '0.9rem',
+                        border: '1px solid rgba(79, 195, 247, 0.2)'
+                      }}>
+                        {sinonimo}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
 
           <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', marginBottom: '2rem' }} />
 
@@ -200,7 +248,7 @@ export default function DetalheTermo() {
                 Categoria
               </span>
               <span style={{ color: '#e2e8f0', fontSize: '1.1rem', fontWeight: 500 }}>
-                Astrofísica
+                {dadosTermo ? dadosTermo.categoria : 'A aguardar dados'}
               </span>
             </div>
 
@@ -244,6 +292,9 @@ export default function DetalheTermo() {
         @keyframes piscar {
           0%, 100% { opacity: 0.1; }
           50% { opacity: 0.8; }
+        }
+        @keyframes spin {
+          100% { transform: rotate(360deg); }
         }
       `}</style>
     </main>
