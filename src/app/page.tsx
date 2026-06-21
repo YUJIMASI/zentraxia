@@ -27,6 +27,13 @@ function HomeContent() {
   const [estrelasHero, setEstrelasHero] = useState<Estrela[]>([])
   const [mostrarPlanetas, setMostrarPlanetas] = useState(skipIntro)
 
+  // Lista dos planetas na ordem correta
+  const ordemCorreta = ['Mercúrio', 'Vênus', 'Terra', 'Marte', 'Júpiter', 'Saturno', 'Urano', 'Netuno'];
+  const [planetasEmbaralhados, setPlanetasEmbaralhados] = useState([...ordemCorreta].sort(() => Math.random() - 0.5));
+  const [selecionado, setSelecionado] = useState<string | null>(null);
+  const [ordemAtual, setOrdemAtual] = useState<string[]>([]);
+  const [jogoCompleto, setJogoCompleto] = useState(false);
+
   useEffect(() => {
     if (skipIntro && mostrarPlanetas) {
       setTimeout(() => {
@@ -352,6 +359,8 @@ function HomeContent() {
           </div>
         </section>
       )}
+
+      
 
       {mostrarPlanetas && (
         <section id="curiosidades" style={{

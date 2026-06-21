@@ -98,7 +98,7 @@ export default function Dicionario() {
 
       {/* Botão de Retorno Canto Superior Esquerdo */}
       <div style={{ position: 'absolute', top: '2rem', left: '2rem', zIndex: 20 }}>
-        <Link href="/" style={{
+        <Link href="/?skipIntro=true" style={{
           display: 'inline-flex',
           alignItems: 'center',
           gap: '8px',

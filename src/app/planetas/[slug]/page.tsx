@@ -4,9 +4,11 @@ import { useParams, useRouter } from 'next/navigation'
 import { getPlanetBySlug } from '@/data/planets'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Stars, useTexture } from '@react-three/drei'
-import { useRef, useState, Suspense } from 'react'
+import { useRef, useState, useEffect, Suspense } from 'react'
 import * as THREE from 'three'
 import Link from 'next/link'
+// IMPORTA O SUPABASE AQUI (ajusta o caminho para a pasta onde criaste o ficheiro)
+import { supabase } from '@/lib/supabase'
 
 function PlanetaFocused({ textureUrl, color, slug }: { textureUrl: string, color: string, slug: string }) {
   const meshRef = useRef<THREE.Mesh>(null)
@@ -40,6 +42,16 @@ function PlanetaFocused({ textureUrl, color, slug }: { textureUrl: string, color
   )
 }
 
+// Interface para os dados de feedback que vêm do Supabase
+interface FeedbackPlaneta {
+  id: string
+  planeta_slug: string
+  nome: string
+  estrelas: number
+  comentario: string
+  created_at: string
+}
+
 export default function PlanetPage() {
   const params = useParams()
   const slug = params.slug as string
@@ -50,10 +62,38 @@ export default function PlanetPage() {
   const [nome, setNome] = useState('')
   const [comentario, setComentario] = useState('')
   const [estrelas, setEstrelas] = useState(5)
-  const [feedbacks, setFeedbacks] = useState([
-    { id: 1, nome: "Comandante Silva", estrelas: 5, comentario: "Dados de telemetria perfeitamente alinhados. Excelente mapeamento de texturas." },
-    { id: 2, nome: "Recruta Adriano", estrelas: 4, comentario: "A análise comparativa com a Terra ajudou imenso a perceber a escala deste mundo!" }
-  ])
+
+  // Estados para gerir a Base de Dados de Feedbacks
+  const [feedbacks, setFeedbacks] = useState<FeedbackPlaneta[]>([])
+  const [loadingFeedbacks, setLoadingFeedbacks] = useState(true)
+  const [aEnviar, setAEnviar] = useState(false)
+  const [erroEnvio, setErroEnvio] = useState('')
+
+  // Ir buscar os feedbacks deste planeta ao Supabase
+  useEffect(() => {
+    async function buscarFeedbacks() {
+      if (!slug) return
+
+      setLoadingFeedbacks(true)
+
+      const { data, error } = await supabase
+        .from('feedbacks_planetas')
+        .select('*')
+        .eq('planeta_slug', slug)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('Erro ao carregar feedbacks:', error)
+        setFeedbacks([])
+      } else {
+        setFeedbacks(data || [])
+      }
+
+      setLoadingFeedbacks(false)
+    }
+
+    buscarFeedbacks()
+  }, [slug])
 
   if (!planeta) {
     return (
@@ -68,21 +108,39 @@ export default function PlanetPage() {
   const tempMedia = (planeta.temperatureMin + planeta.temperatureMax) / 2
   const proporcaoTemp = Math.min(Math.max(((tempMedia + 200) / 700) * 100, 5), 100)
 
-  const enviarFeedback = (e: React.FormEvent) => {
+  // Enviar o feedback para o Supabase
+  const enviarFeedback = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!nome.trim() || !comentario.trim()) return
 
-    const novoFeedback = {
-      id: Date.now(),
-      nome,
-      estrelas,
-      comentario
+    setAEnviar(true)
+    setErroEnvio('')
+
+    const { data, error } = await supabase
+      .from('feedbacks_planetas')
+      .insert([
+        {
+          planeta_slug: slug,
+          nome,
+          estrelas,
+          comentario,
+        },
+      ])
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Erro ao enviar feedback:', error)
+      setErroEnvio('Não foi possível enviar a transmissão. Tenta novamente.')
+    } else if (data) {
+      // Adiciona o novo feedback no topo da lista, sem precisar de recarregar a página
+      setFeedbacks([data, ...feedbacks])
+      setNome('')
+      setComentario('')
+      setEstrelas(5)
     }
 
-    setFeedbacks([novoFeedback, ...feedbacks])
-    setNome('')
-    setComentario('')
-    setEstrelas(5)
+    setAEnviar(false)
   }
 
   return (
@@ -317,7 +375,6 @@ export default function PlanetPage() {
                       onClick={() => setEstrelas(num)}
                       style={{ cursor: 'pointer', fontSize: '1.5rem', color: num <= estrelas ? '#ffaa00' : 'rgba(255,255,255,0.15)', transition: 'color 0.2s' }}
                     >
-                      {/* LÓGICA DE ÍCONES ATUALIZADA AQUI */}
                       <i className={num <= estrelas ? "bi bi-star-fill" : "bi bi-star"} />
                     </span>
                   ))}
@@ -336,41 +393,62 @@ export default function PlanetPage() {
                 />
               </div>
 
+              {erroEnvio && (
+                <p style={{ color: '#ff6b6b', fontSize: '0.85rem', margin: 0 }}>{erroEnvio}</p>
+              )}
+
               <button 
                 type="submit"
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: planeta.color, color: '#000', border: 'none', padding: '1rem', borderRadius: '4px', fontWeight: 700, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.1em', transition: 'opacity 0.2s' }}
-                onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
-                onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                disabled={aEnviar}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: planeta.color, color: '#000', border: 'none', padding: '1rem', borderRadius: '4px', fontWeight: 700, cursor: aEnviar ? 'not-allowed' : 'pointer', textTransform: 'uppercase', letterSpacing: '0.1em', transition: 'opacity 0.2s', opacity: aEnviar ? 0.6 : 1 }}
+                onMouseEnter={(e) => { if (!aEnviar) e.currentTarget.style.opacity = '0.9' }}
+                onMouseLeave={(e) => { if (!aEnviar) e.currentTarget.style.opacity = '1' }}
               >
-                <i className="bi bi-rocket-takeoff-fill" style={{ fontSize: '1.2rem' }} /> Enviar Transmissão
+                <i className={aEnviar ? "bi bi-arrow-repeat" : "bi bi-rocket-takeoff-fill"} style={{ fontSize: '1.2rem', animation: aEnviar ? 'spin 1s linear infinite' : 'none' }} />
+                {aEnviar ? 'A Transmitir...' : 'Enviar Transmissão'}
               </button>
             </form>
           </div>
 
           <div>
             <h3 style={{ fontSize: '1.1rem', color: '#6a6a90', marginBottom: '1.5rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Registos Recentes</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxHeight: '420px', overflowY: 'auto', paddingRight: '10px' }}>
-              {feedbacks.map((item) => (
-                <div key={item.id} style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.03)', padding: '1.2rem', borderRadius: '6px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                    <strong style={{ fontSize: '0.95rem', color: '#e2e8f0' }}>{item.nome}</strong>
-                    
-                    {/* VISUALIZAÇÃO DE ÍCONES ATUALIZADA AQUI */}
-                    <span style={{ color: '#ffaa00', fontSize: '0.95rem', display: 'flex', gap: '2px' }}>
-                      {Array.from({ length: 5 }).map((_, index) => (
-                        <i key={index} className={index < item.estrelas ? "bi bi-star-fill" : "bi bi-star"} />
-                      ))}
-                    </span>
 
+            {loadingFeedbacks ? (
+              <p style={{ color: '#4fc3f7', fontSize: '1rem', textAlign: 'center', padding: '2rem 0' }}>
+                <i className="bi bi-arrow-repeat" style={{ display: 'inline-block', animation: 'spin 2s linear infinite', marginRight: '10px' }} />
+                A sincronizar registos...
+              </p>
+            ) : feedbacks.length === 0 ? (
+              <p style={{ color: '#6a6a90', fontSize: '0.95rem' }}>
+                Ainda não existem registos para este planeta. Sê o primeiro explorador a deixar a tua transmissão.
+              </p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxHeight: '420px', overflowY: 'auto', paddingRight: '10px' }}>
+                {feedbacks.map((item) => (
+                  <div key={item.id} style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.03)', padding: '1.2rem', borderRadius: '6px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                      <strong style={{ fontSize: '0.95rem', color: '#e2e8f0' }}>{item.nome}</strong>
+                      <span style={{ color: '#ffaa00', fontSize: '0.95rem', display: 'flex', gap: '2px' }}>
+                        {Array.from({ length: 5 }).map((_, index) => (
+                          <i key={index} className={index < item.estrelas ? "bi bi-star-fill" : "bi bi-star"} />
+                        ))}
+                      </span>
+                    </div>
+                    <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: 0, lineHeight: 1.5 }}>{item.comentario}</p>
                   </div>
-                  <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: 0, lineHeight: 1.5 }}>{item.comentario}</p>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
         </div>
       </section>
+
+      <style>{`
+        @keyframes spin {
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
 
     </main>
   )
