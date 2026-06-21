@@ -34,6 +34,33 @@ export default function QuizPage() {
   
   const timerRef = useRef<NodeJS.Timeout | null>(null)
 
+  // --- NOVA FUNÇÃO DE CONQUISTA ---
+  const desbloquearComandante = () => {
+    const salvas = localStorage.getItem('zentraxia_conquistas');
+    const conquistas = salvas ? JSON.parse(salvas) : {};
+    
+    if (!conquistas['Comandante Estelar']) {
+      conquistas['Comandante Estelar'] = true;
+      localStorage.setItem('zentraxia_conquistas', JSON.stringify(conquistas));
+      
+      // Um pequeno delay para a mensagem não se sobrepor imediatamente aos resultados
+      setTimeout(() => {
+        alert('⭐ NOVA CONQUISTA: Comandante Estelar! Patente validada com sucesso. Volta à base para veres a tua medalha.');
+      }, 500);
+    }
+  };
+
+  // Verifica automaticamente quando o jogo acaba
+  useEffect(() => {
+    if (faseJogo === 'resultado') {
+      // Se acertou pelo menos 3 perguntas de 5 (60% ou mais)
+      if (acertos >= 3) {
+        desbloquearComandante();
+      }
+    }
+  }, [faseJogo, acertos]);
+  // ---------------------------------
+
   const inicializarMissao = () => {
     const embaralhadas = [...bancoPerguntas].sort(() => Math.random() - 0.5)
     setPerguntasSorteadas(embaralhadas.slice(0, 5))

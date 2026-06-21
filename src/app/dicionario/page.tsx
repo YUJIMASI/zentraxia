@@ -45,7 +45,6 @@ export default function Dicionario() {
     'Zênite', 'Zodíaco', 'Zona Habitável'
   ]
 
-  // Efeito para gerar estrelas no cliente
   useEffect(() => {
     setEstrelas(Array.from({ length: 200 }).map(() => ({
       width: Math.random() * 2 + 1 + 'px',
@@ -57,12 +56,25 @@ export default function Dicionario() {
     })))
   }, [])
 
-  // Filtrar e organizar termos por ordem alfabética
+  // --- NOVA FUNÇÃO DE CONQUISTA ---
+  const desbloquearRatoDeBiblioteca = () => {
+    const salvas = localStorage.getItem('zentraxia_conquistas');
+    const conquistas = salvas ? JSON.parse(salvas) : {};
+    
+    if (!conquistas['Rato de Biblioteca']) {
+      conquistas['Rato de Biblioteca'] = true;
+      localStorage.setItem('zentraxia_conquistas', JSON.stringify(conquistas));
+      alert('📚 NOVA CONQUISTA: Rato de Biblioteca! Ficheiros analisados com sucesso. Volta à base para veres a tua medalha.');
+    } else {
+      alert('Já possuis a conquista "Rato de Biblioteca"!');
+    }
+  };
+  // ---------------------------------
+
   const termosFiltrados = termosEspaciais
     .filter(t => t.toLowerCase().includes(busca.toLowerCase()))
     .sort((a, b) => a.localeCompare(b))
 
-  // Agrupar termos por letra inicial
   const termosAgrupados = termosFiltrados.reduce((acc, termo) => {
     const letra = termo.charAt(0).toUpperCase()
     if (!acc[letra]) acc[letra] = []
@@ -79,7 +91,6 @@ export default function Dicionario() {
       color: '#fff',
       paddingBottom: '5rem'
     }}>
-      {/* Camada de Estrelas Livres */}
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
         {estrelas.map((e, i) => (
           <div key={i} style={{
@@ -96,7 +107,6 @@ export default function Dicionario() {
         ))}
       </div>
 
-      {/* Botão de Retorno Canto Superior Esquerdo */}
       <div style={{ position: 'absolute', top: '2rem', left: '2rem', zIndex: 20 }}>
         <Link href="/?skipIntro=true" style={{
           display: 'inline-flex',
@@ -127,7 +137,6 @@ export default function Dicionario() {
 
       <div style={{ position: 'relative', zIndex: 10, maxWidth: '1200px', margin: '0 auto', padding: '6rem 2rem 2rem' }}>
         
-        {/* Cabeçalho do Dicionário */}
         <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
           <p style={{ color: '#4fc3f7', fontSize: '0.9rem', letterSpacing: '0.3em', textTransform: 'uppercase', marginBottom: '1rem' }}>
             <i className="bi bi-journal-code" style={{ marginRight: '8px' }} />
@@ -141,7 +150,6 @@ export default function Dicionario() {
           </p>
         </div>
 
-        {/* Barra de Pesquisa */}
         <div style={{ maxWidth: '600px', margin: '0 auto 5rem', position: 'relative' }}>
           <div style={{
             position: 'absolute',
@@ -174,11 +182,9 @@ export default function Dicionario() {
           />
         </div>
 
-        {/* Renderização Agrupada por Letras */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4rem' }}>
           {Object.keys(termosAgrupados).sort().map((letra) => (
             <div key={letra}>
-              {/* Letra em Destaque */}
               <div style={{ 
                 display: 'flex', 
                 alignItems: 'center', 
@@ -198,14 +204,12 @@ export default function Dicionario() {
                 </h2>
               </div>
 
-              {/* Grelha de Palavras */}
               <div style={{ 
                 display: 'grid', 
                 gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', 
                 gap: '1.5rem' 
               }}>
                 {termosAgrupados[letra].map((termo) => {
-                  // O URL para onde vai apontar, substituindo espaços por hifens e tudo minúsculo
                   const linkTermo = termo.toLowerCase().replace(/\s+/g, '-');
                   
                   return (
@@ -258,6 +262,44 @@ export default function Dicionario() {
             </div>
           )}
         </div>
+
+        {/* --- BOTÃO DE CONQUISTA NO FINAL --- */}
+        <div style={{ textAlign: 'center', marginTop: '6rem', paddingTop: '3rem', borderTop: '1px solid rgba(79, 195, 247, 0.2)' }}>
+          <button 
+            onClick={desbloquearRatoDeBiblioteca}
+            style={{
+              background: 'transparent',
+              border: '1px solid #9c27b0',
+              color: '#9c27b0',
+              padding: '1rem 3rem',
+              fontSize: '0.9rem',
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              cursor: 'pointer',
+              borderRadius: '4px',
+              transition: 'all 0.3s ease',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '10px'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(156, 39, 176, 0.1)'
+              e.currentTarget.style.boxShadow = '0 0 20px rgba(156, 39, 176, 0.4)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent'
+              e.currentTarget.style.boxShadow = 'none'
+            }}
+          >
+            <i className="bi bi-journal-check" style={{ fontSize: '1.2rem' }} />
+            COMPILAR DADOS PARA TELEMETRIA
+          </button>
+          <p style={{ color: '#64748b', fontSize: '0.8rem', marginTop: '1rem' }}>
+            Clica aqui para validares o teu estudo e ganhares a conquista "Rato de Biblioteca".
+          </p>
+        </div>
+        {/* --------------------------------- */}
+
       </div>
       
       <style>{`
