@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import SolarSystemScene from '@/components/solar-system/SolarSystemScene'
+import TabuleiroJogo from '@/components/solar-system/TabuleiroJogo'
 
 interface Estrela {
   width: string
@@ -472,8 +473,8 @@ function HomeContent() {
                 <p style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8', lineHeight: 1.6 }}>Um ano em Vênus é mais curto do que um único dia terrestre. Ele demora mais tempo a rodar sobre o seu próprio eixo.</p>
               </div>
               <div style={{ background: 'rgba(5, 5, 20, 0.4)', border: '1px solid rgba(0, 229, 255, 0.15)', padding: '2rem', borderRadius: '12px' }}>
-                <div style={{ color: '#9c27b0', fontSize: '1.3rem', marginBottom: '1rem' }}><i className="bi bi-footprints" /></div>
-                <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: '#f1f5f9' }}>Pegadas Eternas</h4>
+                <div style={{ color: '#9c27b0', fontSize: '1.3rem', marginBottom: '1rem' }}><i className="bi bi-person-walking" /></div>
+                <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: '#f1f5f9' }} >Pegadas Eternas</h4>
                 <p style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8', lineHeight: 1.6 }}>As pegadas deixadas pelos astronautas da Apollo na Lua vão durar pelo menos 100 milhões de anos.</p>
               </div>
               <div style={{ background: 'rgba(5, 5, 20, 0.4)', border: '1px solid rgba(0, 229, 255, 0.15)', padding: '2rem', borderRadius: '12px' }}>
@@ -507,6 +508,8 @@ function HomeContent() {
                 <p style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8', lineHeight: 1.6 }}>O Universo observável continua a expandir-se a uma velocidade acelerada.</p>
               </div>
             </div>
+
+           <TabuleiroJogo />
 
             <div style={{ textAlign: 'center', marginBottom: '6rem' }}>
               <Link href="/quiz" style={{
