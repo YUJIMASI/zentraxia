@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import SolarSystemScene from '@/components/solar-system/SolarSystemScene'
@@ -461,7 +462,6 @@ function HomeContent() {
               gap: '2rem', 
               marginBottom: '5rem' 
             }}>
-              {/* Cards de curiosidades originais mantidos aqui em total conformidade */}
               <div style={{ background: 'rgba(5, 5, 20, 0.4)', border: '1px solid rgba(0, 229, 255, 0.15)', padding: '2rem', borderRadius: '12px' }}>
                 <div style={{ color: '#00e5ff', fontSize: '1.3rem', marginBottom: '1rem' }}><i className="bi bi-volume-mute" /></div>
                 <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: '#f1f5f9' }}>O Silêncio Cósmico</h4>
@@ -686,30 +686,88 @@ function HomeContent() {
         width: '100%',
         background: 'linear-gradient(to bottom, transparent, #000000)',
         borderTop: '1px solid rgba(79, 195, 247, 0.1)',
-        padding: '6rem 2rem 3rem',
+        padding: '5rem 2rem 0',
         color: '#94a3b8',
-        textAlign: 'center',
         position: 'relative',
         zIndex: 10,
       }}>
-        <div style={{ width: '100px', height: '2px', background: 'linear-gradient(to right, transparent, #4fc3f7, transparent)', margin: '0 auto 3rem' }} />
-        <h3 style={{ color: '#fff', letterSpacing: '0.3em', marginBottom: '1.5rem', fontWeight: 300 }}>ZENTRÁXIA</h3>
-        
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '2rem', marginBottom: '3rem', fontSize: '0.9rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><i className="bi bi-person-badge" style={{ color: '#4fc3f7', fontSize: '1.2rem' }} /><span>Yussandy Silva</span></div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><i className="bi bi-envelope-paper" style={{ color: '#4fc3f7', fontSize: '1.2rem' }} /><span>yussandysilva2@gmail.com</span></div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><i className="bi bi-phone" style={{ color: '#4fc3f7', fontSize: '1.2rem' }} /><span>+244 958 565 659</span></div>
+        <div style={{ width: '100px', height: '2px', background: 'linear-gradient(to right, transparent, #4fc3f7, transparent)', margin: '0 auto 4rem' }} />
+
+        <div className="footer-columns" style={{
+          maxWidth: '1100px',
+          margin: '0 auto',
+          display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'space-between',
+          gap: '3rem',
+          textAlign: 'left',
+          paddingBottom: '3rem',
+        }}>
+
+          {/* Coluna 1 — Marca */}
+          <div className="footer-col" style={{ flex: '1 1 260px', minWidth: '220px' }}>
+            <div className="footer-brand-row" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.2rem' }}>
+              <Image src="/img/logo.png" alt="Zentráxia" width={46} height={46} style={{ objectFit: 'contain' }} />
+              <h3 style={{ color: '#fff', letterSpacing: '0.25em', fontWeight: 300, fontSize: '1.1rem', margin: 0 }}>ZENTRÁXIA</h3>
+            </div>
+            <p style={{ fontSize: '0.85rem', lineHeight: 1.7, opacity: 0.75, marginBottom: '1.5rem', maxWidth: '260px' }}>
+              Entre estrelas e silêncios, cada órbita guarda uma história à espera de ser descoberta.
+            </p>
+            <div className="footer-stack" style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
+              <Link href="/sobre" className="footer-link">Sobre</Link>
+              <Link href="/termos" className="footer-link">Termos de Uso</Link>
+            </div>
+          </div>
+
+          {/* Coluna 2 — Contactos */}
+          <div className="footer-col" style={{ flex: '1 1 240px', minWidth: '220px' }}>
+            <h4 style={{ color: '#fff', letterSpacing: '0.2em', fontSize: '0.85rem', fontWeight: 400, marginBottom: '1.2rem' }}>CONTACTOS</h4>
+            <div className="footer-stack" style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem', fontSize: '0.9rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <i className="bi bi-person-badge" style={{ color: '#4fc3f7', fontSize: '1.1rem' }} />
+                <span>Yussandy Silva</span>
+              </div>
+              <a href="tel:+244958565659" className="footer-contact-link" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <i className="bi bi-phone" style={{ color: '#4fc3f7', fontSize: '1.1rem' }} />
+                <span>+244 958 565 659</span>
+              </a>
+              <a href="mailto:yussandysilva2@gmail.com" className="footer-contact-link" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <i className="bi bi-envelope-paper" style={{ color: '#4fc3f7', fontSize: '1.1rem' }} />
+                <span>yussandysilva2@gmail.com</span>
+              </a>
+            </div>
+          </div>
+
+          {/* Coluna 3 — Redes sociais (empilhadas) */}
+          <div className="footer-col" style={{ flex: '0 1 150px', minWidth: '140px' }}>
+            <h4 style={{ color: '#fff', letterSpacing: '0.2em', fontSize: '0.85rem', fontWeight: 400, marginBottom: '1.2rem' }}>SIGA-NOS</h4>
+            <div className="footer-stack" style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+              <a href="https://www.youtube.com/channel/UCNXfsP3XUKhjcm-LpdjGOmw" target="_blank" rel="noopener noreferrer" className="social-link">
+                <i className="bi bi-youtube" /><span>YouTube</span>
+              </a>
+              <a href="https://www.instagram.com/yussandys/" target="_blank" rel="noopener noreferrer" className="social-link">
+                <i className="bi bi-instagram" /><span>Instagram</span>
+              </a>
+              <span className="social-link social-link-disabled" title="Em breve">
+                <i className="bi bi-tiktok" /><span>TikTok</span>
+              </span>
+              <a href="https://github.com/YUJIMASI" target="_blank" rel="noopener noreferrer" className="social-link">
+                <i className="bi bi-github" /><span>GitHub</span>
+              </a>
+            </div>
+          </div>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginBottom: '4rem', opacity: 0.8 }}>
-          <i className="bi bi-youtube" style={{ fontSize: '1.5rem', color: '#fff' }} />
-          <i className="bi bi-instagram" style={{ fontSize: '1.5rem', color: '#fff' }} />
-          <i className="bi bi-tiktok" style={{ fontSize: '1.5rem', color: '#fff' }} />
-          <i className="bi bi-github" style={{ fontSize: '1.5rem', color: '#fff' }} />
-        </div>
-
-        <div style={{ fontSize: '0.75rem', letterSpacing: '0.1em', opacity: 0.5 }}>
-          © {new Date().getFullYear()} ZENTRÁXIA • MISSÃO DE EXPLORAÇÃO ESPACIAL
+        {/* Sub-footer */}
+        <div style={{
+          borderTop: '1px solid rgba(148, 163, 184, 0.1)',
+          padding: '1.5rem 0',
+          textAlign: 'center',
+          fontSize: '0.75rem',
+          letterSpacing: '0.1em',
+          opacity: 0.5,
+        }}>
+          © {new Date().getFullYear()} ZENTRÁXIA • Todos os direitos reservados ao autor YUSSANDY SILVA
         </div>
       </footer>
 
@@ -721,6 +779,58 @@ function HomeContent() {
         @keyframes slideInRight {
           from { transform: translateX(100%); opacity: 0; }
           to { transform: translateX(0); opacity: 1; }
+        }
+
+        .footer-link {
+          color: #94a3b8;
+          text-decoration: none;
+          font-size: 0.9rem;
+          transition: color 0.25s ease, padding-left 0.25s ease;
+        }
+        .footer-link:hover {
+          color: #4fc3f7;
+          padding-left: 4px;
+        }
+
+        .footer-contact-link {
+          color: #94a3b8;
+          text-decoration: none;
+          transition: color 0.25s ease;
+        }
+        .footer-contact-link:hover {
+          color: #4fc3f7;
+        }
+
+        .social-link {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: #94a3b8;
+          text-decoration: none;
+          font-size: 0.85rem;
+          transition: color 0.25s ease, transform 0.25s ease;
+        }
+        .social-link i {
+          font-size: 1.2rem;
+          color: #fff;
+          transition: color 0.25s ease;
+        }
+        .social-link:hover {
+          color: #4fc3f7;
+          transform: translateX(4px);
+        }
+        .social-link:hover i {
+          color: #4fc3f7;
+        }
+        .social-link-disabled {
+          opacity: 0.35;
+          cursor: not-allowed;
+        }
+
+        @media (max-width: 640px) {
+          .footer-columns { justify-content: center !important; text-align: center !important; }
+          .footer-stack { align-items: center !important; }
+          .footer-brand-row { justify-content: center !important; }
         }
       `}</style>
     </main>
