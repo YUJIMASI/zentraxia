@@ -254,7 +254,7 @@ export default function TabuleiroJogo() {
         }
         setPlanetaArrastado(null)
         setHoveredOrbita(null)
-        // Nota: O scroll continua bloqueado até validar ou reiniciar conforme pedido!
+        // Nota: O scroll continua bloqueado até validar ou reiniciar
       }
     }
     
@@ -343,9 +343,9 @@ export default function TabuleiroJogo() {
           </div>
           
           <p style={{ color: '#e0e0f0', fontSize: '0.78rem', margin: '0 0 4px 0', lineHeight: '1.3' }}>
-            <strong style={{ color: '#ff3333', letterSpacing: '0.05em' }}>ORDEM DO CORONEL:</strong> "Recruta, o Alinhamento de Huíla detetou anomalias gravitacionais! Reordene os 8 planetas a contar do Sol imediatamente para evitar o colapso."
+            <strong style={{ color: '#f73d3d', letterSpacing: '0.05em' }}>ORDEM DO CORONEL:</strong> "Recruta, o Alinhamento de Angola detectou anomalias gravitacionais! Reordene os 8 planetas a contar do Sol imediatamente para evitar o colapso."
           </p>
-          <p style={{ color: '#8a99ad', fontSize: '0.72rem', margin: 0 }}>
+          <p style={{ color: '#8a99ad', fontSize: '0.90rem', margin: 0 }}>
             <strong style={{ color: '#00e5ff' }}>Instrução Tática:</strong> Arraste cada planeta para a órbita correta. O ecrã tranca o scroll no primeiro clique para foco operacional total e liberta ao carregar em <strong>Validar</strong>.
           </p>
         </div>
