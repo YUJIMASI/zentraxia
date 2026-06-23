@@ -14,6 +14,7 @@ interface PlanetProps {
   orbitRadius: number
   orbitSpeed: number
   color: string
+  timeMultiplier?: number
 }
 
 export default function Planet3D({ slug, name, textureUrl, size, orbitRadius, orbitSpeed, color }: PlanetProps) {

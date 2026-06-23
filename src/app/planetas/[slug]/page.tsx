@@ -21,21 +21,43 @@ function PlanetaFocused({ textureUrl, color, slug }: { textureUrl: string, color
   })
 
   const esSaturno = slug === 'saturno'
+  const isSun = slug === 'sol' // Nova verificação de segurança para o Sol
 
   return (
     <group>
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[5, 3, 5]} intensity={1.5} />
+      {/* Iluminação Cinemática de Alto Contraste */}
+      <ambientLight intensity={isSun ? 2 : 0.05} /> 
       
-      <mesh ref={meshRef} castShadow receiveShadow>
+      {!isSun && (
+        // Luz direcional forte apenas para os planetas, criando um efeito dramático "metade claro, metade escuro"
+        <directionalLight 
+          position={[5, 2, 4]} 
+          intensity={2.5} 
+          castShadow 
+        />
+      )}
+      
+      <mesh ref={meshRef} castShadow={!isSun} receiveShadow={!isSun}>
         <sphereGeometry args={[2.8, 64, 64]} />
-        <meshStandardMaterial map={texture} roughness={0.7} metalness={0.1} />
+        {isSun ? (
+          // O Sol usa o material que ignora sombras
+          <meshBasicMaterial map={texture} />
+        ) : (
+          // Os planetas reagem à luz com um toque mais metálico e profundo
+          <meshStandardMaterial map={texture} roughness={0.5} metalness={0.15} />
+        )}
       </mesh>
 
       {esSaturno && (
-        <mesh rotation={[Math.PI / 2.5, Math.PI / 10, 0]}>
-          <ringGeometry args={[3.6, 6.5, 64]} />
-          <meshBasicMaterial color="#c2a96e" side={THREE.DoubleSide} transparent opacity={0.8} />
+        <mesh rotation={[Math.PI / 2.2, Math.PI / 10, 0]} receiveShadow castShadow>
+          <ringGeometry args={[3.4, 6.0, 64]} />
+          <meshStandardMaterial 
+            color="#c2a96e" 
+            side={THREE.DoubleSide} 
+            transparent 
+            opacity={0.8} 
+            roughness={0.6}
+          />
         </mesh>
       )}
     </group>
