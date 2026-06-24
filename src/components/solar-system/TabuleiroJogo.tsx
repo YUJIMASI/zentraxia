@@ -67,7 +67,19 @@ function SolDoJogo() {
   return (
     <mesh ref={solRef} position={[13, 0, 0]}>
       <sphereGeometry args={[9.0, 64, 64]} />
-      <meshStandardMaterial map={texturaSol} emissive={new THREE.Color('#ffaa00')} emissiveIntensity={0.2} />
+      <meshBasicMaterial map={texturaSol} />
+
+      {/* Efeito de Fogo / Corona Solar 1 */}
+      <mesh scale={1.08}>
+        <sphereGeometry args={[9.0, 64, 64]} />
+        <meshBasicMaterial color="#ff6600" transparent opacity={0.3} blending={THREE.AdditiveBlending} />
+      </mesh>
+
+      {/* Efeito de Fogo / Corona Solar 2 */}
+      <mesh scale={1.15}>
+        <sphereGeometry args={[9.0, 64, 64]} />
+        <meshBasicMaterial color="#ffaa00" transparent opacity={0.15} blending={THREE.AdditiveBlending} />
+      </mesh>
     </mesh>
   )
 }
@@ -240,7 +252,7 @@ export default function TabuleiroJogo() {
   }
 
   useEffect(() => {
-    const lidarComMove = (e: MouseEvent) => { if (planetaArrastado) setPosicaoRato({ x: e.clientX, y: e.clientY }) }
+    const lidarComMove = (e: PointerEvent) => { if (planetaArrastado) setPosicaoRato({ x: e.clientX, y: e.clientY }) }
     const lidarComDrop = () => {
       if (planetaArrastado) {
         const alvo = hoveredOrbitaRef.current
@@ -254,17 +266,18 @@ export default function TabuleiroJogo() {
         }
         setPlanetaArrastado(null)
         setHoveredOrbita(null)
-        // Nota: O scroll continua bloqueado até validar ou reiniciar
       }
     }
     
     if (planetaArrastado) {
-      window.addEventListener('mousemove', lidarComMove)
-      window.addEventListener('mouseup', lidarComDrop)
+      window.addEventListener('pointermove', lidarComMove)
+      window.addEventListener('pointerup', lidarComDrop)
+      window.addEventListener('pointercancel', lidarComDrop) // cobre interrupções (ex: notificação a deslizar por cima)
     }
     return () => {
-      window.removeEventListener('mousemove', lidarComMove)
-      window.removeEventListener('mouseup', lidarComDrop)
+      window.removeEventListener('pointermove', lidarComMove)
+      window.removeEventListener('pointerup', lidarComDrop)
+      window.removeEventListener('pointercancel', lidarComDrop)
     }
   }, [planetaArrastado, orbitas])
 

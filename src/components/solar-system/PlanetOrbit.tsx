@@ -13,10 +13,12 @@ interface PlanetProps {
   orbitRadius: number
   orbitSpeed: number
   timeMultiplier?: number
+  // ADICIONADO: Propriedade para receber a função de clique vinda da cena principal
+  onSelect?: (slug: string, position: THREE.Vector3) => void 
 }
 
 export default function PlanetOrbit({ 
-  slug, name, textureUrl, size, orbitRadius, orbitSpeed, timeMultiplier = 1 
+  slug, name, textureUrl, size, orbitRadius, orbitSpeed, timeMultiplier = 1, onSelect 
 }: PlanetProps) {
   
   const planetRef = useRef<THREE.Mesh>(null)
@@ -35,14 +37,52 @@ export default function PlanetOrbit({
     }
   })
 
+  // ADICIONADO: Função que é executada quando clicas no planeta
+  const handleClick = (e: any) => {
+    e.stopPropagation() // Muito importante: impede que o clique atravesse o planeta e clique no vazio/estrelas
+    
+    if (planetRef.current && onSelect) {
+      // Cria um vetor vazio
+      const position = new THREE.Vector3()
+      // Preenche o vetor com a posição exata do planeta no mundo 3D
+      planetRef.current.getWorldPosition(position)
+      // Envia o slug e a posição de volta para o SolarSystemScene
+      onSelect(slug, position)
+    }
+  }
+
   return (
     <group ref={orbitGroupRef}>
-      <mesh ref={planetRef} position={[orbitRadius, 0, 0]} castShadow={!isSun} receiveShadow={!isSun}>
+      <mesh 
+  ref={planetRef} 
+  position={[orbitRadius, 0, 0]} 
+  castShadow={!isSun} 
+  receiveShadow={!isSun}
+  onClick={handleClick}
+  onPointerOver={() => (document.body.style.cursor = 'pointer')}
+  onPointerOut={() => (document.body.style.cursor = 'default')}
+>
         <sphereGeometry args={[size, 64, 64]} />
         {isSun ? (
-          <meshBasicMaterial map={texture} />
+          <>
+            {/* Núcleo do Sol */}
+            <meshBasicMaterial map={texture} />
+            
+            {/* Efeito de Fogo / Corona Solar 1 */}
+            <mesh scale={1.08}>
+              <sphereGeometry args={[size, 64, 64]} />
+              <meshBasicMaterial color="#ff6600" transparent opacity={0.3} blending={THREE.AdditiveBlending} />
+            </mesh>
+            
+            {/* Efeito de Fogo / Corona Solar 2 */}
+            <mesh scale={1.15}>
+              <sphereGeometry args={[size, 64, 64]} />
+              <meshBasicMaterial color="#ffaa00" transparent opacity={0.15} blending={THREE.AdditiveBlending} />
+            </mesh>
+          </>
         ) : (
-          <meshStandardMaterial map={texture} roughness={0.6} metalness={0.1} />
+          // Planetas normais
+          <meshStandardMaterial map={texture} roughness={0.4} metalness={0.2} />
         )}
       </mesh>
 
